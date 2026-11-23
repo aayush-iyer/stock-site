@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Site</title>
+    <title>StockSite</title>
 
     <!-- Fonts: Cormorant Garamond (headings), Fraunces (numbers), Lato (text) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,15 +14,39 @@
     <script src="app.js" defer></script>
   </head>
   <body>
+
+    <!-- ===== Top navigation bar ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="#" class="logo">StockSite</a>
+        <nav class="nav" aria-label="Main">
+          <a href="#" class="nav-link active">Markets</a>
+          <a href="#" class="nav-link">Portfolio</a>
+          <a href="#" class="nav-link">Learn</a>
+          <a href="#" class="nav-link">Challenges</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===== Main content ===== -->
     <main class="container">
       <p class="label">Hello,</p>
       <h1 class="greeting">Aayush</h1>
 
+      <!-- Search bar -->
+      <form class="search" role="search">
+        <label for="search-input" class="sr-only">Search stocks</label>
+        <input id="search-input" type="search" placeholder="Search a stock, e.g. AAPL or Apple" autocomplete="off">
+        <button type="submit" class="btn-gold">Search</button>
+      </form>
+
+      <!-- Portfolio card -->
       <section class="card">
         <p class="label">Practice portfolio</p>
         <p class="big-number">$104,250<span class="cents">.80</span></p>
         <span class="chip">+2.4% today</span>
       </section>
     </main>
+
   </body>
 </html>
