@@ -1,6 +1,83 @@
+/* ===== Velvet theme: colours and fonts as variables ===== */
+:root {
+  --bg: #1E0F1C;              /* deep plum page background */
+  --surface: #2A1626;         /* cards and rows */
+  --surface-raised: #3A1F35;  /* chips, raised items */
+  --text: #F6E9F2;            /* main text */
+  --gold: #E9C46A;            /* accent */
+  --on-gold: #1E0F1C;         /* text on top of gold */
+  --gain: #7FD6A0;            /* price going up */
+  --loss: #F28B82;            /* price going down */
+
+  --font-heading: "Cormorant Garamond", Georgia, serif;
+  --font-number: "Fraunces", Georgia, serif;
+  --font-body: "Lato", system-ui, sans-serif;
+
+  --radius-card: 16px;
+}
+
+/* ===== Base ===== */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #0b0f1a;
-  color: #ffffff;
-  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ===== Text styles ===== */
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin: 0 0 4px;
+}
+
+.greeting {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 42px;
+  line-height: 1;
+  margin: 0 0 32px;
+}
+
+/* ===== Portfolio card ===== */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-card);
   padding: 24px;
+  max-width: 420px;
+}
+
+.big-number {
+  font-family: var(--font-number);
+  font-size: 44px;
+  line-height: 1.1;
+  margin: 0 0 12px;
+}
+
+.cents {
+  font-size: 26px;
+}
+
+.chip {
+  display: inline-block;
+  background: var(--surface-raised);
+  color: var(--gold);
+  font-family: var(--font-number);
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
 }
