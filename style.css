@@ -37,10 +37,10 @@ body {
 
 /* ===== Text styles ===== */
 .label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.75;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--gold);
   margin: 0 0 4px;
 }
 
