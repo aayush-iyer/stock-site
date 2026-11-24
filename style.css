@@ -876,3 +876,91 @@ a {
       "search";
   }
 }
+
+/* ===== Light / dark mode ===== */
+
+/* A separate gold for filled buttons and highlights, so text-gold can change in light mode */
+:root {
+  --gold-fill: #E9C46A;
+  color-scheme: dark;
+}
+
+/* Light mode: "Cream" (same variables, different values) */
+[data-theme="light"] {
+  --bg: #FAF6F0;
+  --surface: #FFFFFF;
+  --surface-raised: #F3EAE4;
+  --border: #E8DDD5;
+  --text: #2A1426;
+  --text-muted: #7A6372;
+  --gold: #8A6116;          /* darker gold for text, readable on cream */
+  --gold-fill: #E9C46A;     /* bright gold for buttons and highlights */
+  --on-gold: #2A1426;
+  --gain: #1F8A55;
+  --loss: #C2413A;
+  color-scheme: light;
+}
+
+/* Filled gold things always use the bright gold */
+.nav-link.active,
+.btn-gold,
+.range-btn.active,
+.pin-btn.pinned,
+.news-tag {
+  background: var(--gold-fill);
+}
+
+.range-btn.active {
+  border-color: var(--gold-fill);
+}
+
+/* In light mode, white cards need a thin border to stand out from the cream page */
+[data-theme="light"] .quote-card,
+[data-theme="light"] .card,
+[data-theme="light"] .empty-state {
+  border: 1px solid var(--border);
+}
+
+[data-theme="light"] .pin-card {
+  border-color: var(--border);
+}
+
+[data-theme="light"] .pin-card:hover {
+  border-color: var(--gold);
+}
+
+[data-theme="light"] .toast {
+  box-shadow: 0 8px 24px rgba(42, 20, 38, 0.15);
+}
+
+/* Smooth fade between themes */
+body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* The ☀ / ☾ button */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  margin-left: 4px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.theme-toggle:hover {
+  background: var(--surface);
+  border-color: var(--gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}

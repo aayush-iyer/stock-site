@@ -689,3 +689,9 @@ quoteResult.addEventListener("click", (event) => {
   button.outerHTML = pinButtonHTML(symbol);   // redraw the button in its new state
   showToast(result.pinned ? `${symbol} pinned to your dashboard` : `${symbol} removed from your dashboard`);
 });
+// ===== Redraw the chart in the new colours when the theme changes =====
+window.addEventListener("themechange", () => {
+  if (currentSymbol && priceChart) {
+    selectRange(currentRange);
+  }
+});

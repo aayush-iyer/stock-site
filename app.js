@@ -256,3 +256,6 @@ async function getDailyHistory(symbol) {
 // "pageshow" also runs when you come back with the Back button,
 // so the dashboard always reflects your latest pins
 window.addEventListener("pageshow", loadDashboard);
+
+// Redraw the mini charts in the new colours when the theme changes
+window.addEventListener("themechange", loadDashboard);
