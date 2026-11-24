@@ -168,6 +168,68 @@ a {
   filter: brightness(1.08);
 }
 
+/* ===== Quote result ===== */
+.quote-card {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  max-width: 560px;
+  margin: 0 0 32px;
+}
+
+.quote-symbol {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.quote-price {
+  font-family: var(--font-number);
+  font-size: 40px;
+  line-height: 1.1;
+  margin: 8px 0 4px;
+}
+
+.quote-change {
+  font-family: var(--font-number);
+  font-size: 16px;
+  margin: 0 0 20px;
+}
+
+.up {
+  color: var(--gain);
+}
+
+.down {
+  color: var(--loss);
+}
+
+.quote-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.quote-stats dt {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+}
+
+.quote-stats dd {
+  margin: 0;
+  font-family: var(--font-number);
+  font-size: 16px;
+}
+
+.quote-message {
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* ===== Portfolio card ===== */
 .card {
   background: var(--surface);
