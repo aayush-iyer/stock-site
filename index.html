@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockSite</title>
+    <title>The Trading Room</title>
 
     <!-- Fonts: Cormorant Garamond (headings), Fraunces (numbers), Lato (text) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,19 +11,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Fraunces:opsz,wght@9..144,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-        <script src="config.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-        <script src="pins.js" defer></script>
-            <script src="app.js" defer></script>
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="pins.js" defer></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
 
     <!-- ===== Top navigation bar ===== -->
     <header class="site-header">
       <div class="header-inner">
-        <a href="#" class="logo">StockSite</a>
+        <a href="index.html" class="logo">The Trading Room</a>
         <nav class="nav" aria-label="Main">
-          <a href="#" class="nav-link active">Markets</a>
+          <a href="index.html" class="nav-link active" aria-current="page">Home</a>
+          <a href="stock.html" class="nav-link">Markets</a>
           <a href="#" class="nav-link">Portfolio</a>
           <a href="#" class="nav-link">Learn</a>
           <a href="#" class="nav-link">Challenges</a>
@@ -33,24 +34,45 @@
 
     <!-- ===== Main content ===== -->
     <main class="container">
-      <p class="label">Hello,</p>
-      <h1 class="greeting">Aayush</h1>
+            <!-- ===== Top of the home page: greeting + search (left), practice portfolio (right) ===== -->
+      <div class="home-hero">
+        <div class="home-greet">
+          <p class="label">Hello,</p>
+          <h1 class="greeting">Aayush</h1>
+        </div>
 
-      <!-- Search bar -->
-      <form class="search" role="search">
-        <label for="search-input" class="sr-only">Search stocks</label>
-        <input id="search-input" type="search" placeholder="Search a stock, e.g. AAPL or Apple" autocomplete="off">
-        <button type="submit" class="btn-gold">Search</button>
-      </form>
-      
-  
+        <!-- Practice portfolio summary (sample figures for now: the real one comes in Block 4) -->
+        <aside class="card portfolio-card" aria-labelledby="portfolio-title">
+          <p id="portfolio-title" class="label">Practice portfolio</p>
+          <p class="big-number">$104,250<span class="cents">.80</span></p>
+          <span class="chip">+2.4% today</span>
+          <p class="practice-note">Sample figures · practice money</p>
+          <a href="#" class="card-link">View portfolio →</a>
+        </aside>
 
-      <!-- Portfolio card -->
-      <section class="card">
-        <p class="label">Practice portfolio</p>
-        <p class="big-number">$104,250<span class="cents">.80</span></p>
-        <span class="chip">+2.4% today</span>
+        <!-- Search bar -->
+        <form class="search home-search" role="search">
+          <label for="search-input" class="sr-only">Search stocks</label>
+          <input id="search-input" type="search" placeholder="Search a stock, e.g. AAPL" autocomplete="off">
+          <button type="submit" class="btn-gold">Search</button>
+        </form>
+      </div>
+
+      <!-- Dashboard: pinned stocks (filled in by app.js) -->
+      <section class="dashboard" aria-labelledby="dash-title">
+        <div class="section-head">
+          <h2 id="dash-title" class="stats-title">Your dashboard</h2>
+          <span id="pin-count" class="section-note"></span>
+        </div>
+        <div id="pinned-grid" class="pinned-grid"></div>
       </section>
+
+      <!-- News for pinned stocks (filled in by app.js) -->
+      <section class="dashboard-news" aria-labelledby="news-title">
+        <h2 id="news-title" class="stats-title">News for your stocks</h2>
+        <div id="dash-news" class="news-list"></div>
+      </section>
+
     </main>
 
   </body>

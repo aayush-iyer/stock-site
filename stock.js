@@ -133,7 +133,7 @@ function renderQuote(symbol, q, profile, m, peers) {
   quoteResult.hidden = false;
   loadChart(symbol);
   loadNews(symbol);
-  document.title = `${symbol} · StockSite`;
+  document.title = `${symbol} · The Trading Room`;
 }
 
 // ===== Show a simple message in the result box =====

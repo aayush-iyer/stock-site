@@ -668,3 +668,211 @@ a {
     animation: none;
   }
 }
+
+/* ===== Dashboard ===== */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-note {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pinned-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 0 0 8px;
+}
+
+.pin-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.pin-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+/* The whole card is clickable (an invisible link stretched over it) */
+.pin-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.pin-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pin-symbol {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.pin-name {
+  margin: 0;
+  max-width: 150px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The × sits above the invisible link so it can still be clicked */
+.unpin-btn {
+  position: relative;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.unpin-btn:hover {
+  color: var(--loss);
+  border-color: var(--loss);
+}
+
+.pin-price {
+  margin: 12px 0 0;
+  font-family: var(--font-number);
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.pin-change {
+  margin: 2px 0 10px;
+  font-family: var(--font-number);
+  font-size: 14px;
+}
+
+.spark-wrap {
+  position: relative;
+  height: 56px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 28px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-card);
+}
+
+.empty-title {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 22px;
+}
+
+.news-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--on-gold);
+  background: var(--gold);
+  border-radius: 999px;
+}
+
+.dashboard-news {
+  margin: 0 0 32px;
+}
+
+.portfolio-sample {
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pin-card {
+    transition: none;
+  }
+
+  .pin-card:hover {
+    transform: none;
+  }
+}
+
+/* ===== Home page top: greeting + search (left), portfolio card (right) ===== */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-areas:
+    "greet  card"
+    "search card";
+  column-gap: 32px;
+  align-items: start;
+  margin: 0 0 8px;
+}
+
+.home-greet {
+  grid-area: greet;
+}
+
+.home-search {
+  grid-area: search;
+}
+
+.portfolio-card {
+  grid-area: card;
+  max-width: none;
+  margin: 0 0 24px;
+}
+
+.portfolio-card .big-number {
+  font-size: 40px;
+}
+
+.practice-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.card-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+/* Tablets and phones: greeting → portfolio card → search */
+@media (max-width: 760px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "greet"
+      "card"
+      "search";
+  }
+}
