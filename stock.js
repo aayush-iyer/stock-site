@@ -68,6 +68,7 @@ function renderQuote(symbol, q, profile, m, peers) {
             <p class="quote-symbol">${profile.name || symbol}</p>
             <p class="company-meta">${symbol}${profile.exchange ? " · " + shortExchange(profile.exchange) : ""}${profile.finnhubIndustry ? " · " + profile.finnhubIndustry : ""}</p>
           </div>
+          ${pinButtonHTML(symbol)}
         </div>
         <p class="quote-price">${formatMoney(q.c)}</p>
         <p class="quote-change ${direction}">
@@ -662,3 +663,29 @@ if (/^[A-Z.\-]{1,10}$/.test(startSymbol)) {
 } else {
   showMessage("Search for a stock above, e.g. AAPL.");
 }
+
+// ===== Pin to dashboard =====
+function pinButtonHTML(symbol) {
+  const pinned = isPinned(symbol);
+  return `
+    <button type="button" class="pin-btn ${pinned ? "pinned" : ""}" data-symbol="${symbol}" aria-pressed="${pinned}">
+      <span class="pin-star" aria-hidden="true">${pinned ? "★" : "☆"}</span>
+      <span>${pinned ? "Pinned" : "Pin to dashboard"}</span>
+    </button>`;
+}
+
+quoteResult.addEventListener("click", (event) => {
+  const button = event.target.closest(".pin-btn");
+  if (!button) return;
+
+  const symbol = button.dataset.symbol;
+  const result = togglePin(symbol);
+
+  if (result.full) {
+    showToast(`You can pin up to ${MAX_PINS} stocks. Unpin one first.`);
+    return;
+  }
+
+  button.outerHTML = pinButtonHTML(symbol);   // redraw the button in its new state
+  showToast(result.pinned ? `${symbol} pinned to your dashboard` : `${symbol} removed from your dashboard`);
+});

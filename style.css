@@ -603,3 +603,68 @@ a {
     font-size: 40px;
   }
 }
+/* ===== Pin to dashboard button ===== */
+.company {
+  flex-wrap: wrap;
+}
+
+.pin-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pin-btn:hover {
+  background: rgba(233, 196, 106, 0.12);
+}
+
+.pin-btn.pinned {
+  color: var(--on-gold);
+  background: var(--gold);
+}
+
+.pin-star {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ===== Pop-up message (toast) ===== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 12px 18px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: toast-in 0.25s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Respect people who've turned off animations */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
