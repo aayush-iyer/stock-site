@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All US stocks · The Trading Room</title>
+
+    <!-- Fonts: Cormorant Garamond (headings), Fraunces (numbers), Lato (text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Fraunces:opsz,wght@9..144,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js"></script>
+    <script src="directory.js" defer></script>
+  </head>
+  <body>
+
+    <!-- ===== Top navigation bar ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">The Trading Room</a>
+        <nav class="nav" aria-label="Main">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="markets.html" class="nav-link active">Markets</a>
+          <a href="#" class="nav-link">Portfolio</a>
+          <a href="#" class="nav-link">Learn</a>
+          <a href="#" class="nav-link">Challenges</a>
+          <button type="button" class="theme-toggle" aria-label="Switch theme">☀</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===== All US stocks directory ===== -->
+    <main class="container">
+      <div class="markets-head">
+        <p class="label"><a href="markets.html" class="back-link">← Markets</a></p>
+        <h1 class="greeting">All US stocks</h1>
+        <p class="markets-intro">Every company and ETF listed on the main US exchanges (NYSE, Nasdaq, NYSE Arca, Cboe and NYSE American). Prices load for the rows on screen.</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="search dir-search">
+        <label for="dir-filter" class="sr-only">Filter by company name or ticker</label>
+        <input id="dir-filter" type="search" placeholder="Filter by company or ticker, e.g. bank" autocomplete="off">
+      </div>
+
+      <div id="type-filters" class="range-buttons" role="group" aria-label="Filter by type">
+        <button type="button" class="range-btn active" data-type="All" aria-pressed="true">All</button>
+        <button type="button" class="range-btn" data-type="Stock" aria-pressed="false">Stocks</button>
+        <button type="button" class="range-btn" data-type="ETF" aria-pressed="false">ETFs</button>
+      </div>
+
+      <div id="letter-bar" class="range-buttons letter-bar" role="group" aria-label="Filter by first letter of the ticker"></div>
+
+      <!-- The list (filled in by directory.js) -->
+      <section class="markets-section" aria-labelledby="dir-title">
+        <div class="section-head">
+          <h2 id="dir-title" class="stats-title">Results</h2>
+          <span id="dir-count" class="section-note" aria-live="polite"></span>
+        </div>
+
+        <div class="dir-wrap">
+          <table class="dir-table">
+            <thead>
+              <tr>
+                <th scope="col">Ticker</th>
+                <th scope="col">Company</th>
+                <th scope="col" class="dir-type-col">Type</th>
+                <th scope="col" class="dir-num">Price</th>
+                <th scope="col" class="dir-num">Today</th>
+              </tr>
+            </thead>
+            <tbody id="dir-body"></tbody>
+          </table>
+        </div>
+
+        <div class="dir-pager">
+          <button type="button" id="dir-prev" class="range-btn">← Previous</button>
+          <span id="dir-page" class="section-note"></span>
+          <button type="button" id="dir-next" class="range-btn">Next →</button>
+        </div>
+      </section>
+    </main>
+
+  </body>
+</html>

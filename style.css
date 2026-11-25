@@ -1133,3 +1133,111 @@ body {
   font-size: 14px;
   color: var(--text-muted);
 }
+
+/* ===== All US stocks directory ===== */
+.back-link {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.dir-search {
+  margin-bottom: 16px;
+}
+
+.letter-bar .range-btn {
+  min-width: 34px;
+  padding: 5px 8px;
+}
+
+.dir-wrap {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 4px 16px;
+  overflow-x: auto;
+}
+
+.dir-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dir-table th {
+  padding: 12px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--text-muted);
+}
+
+.dir-table td {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.dir-table tbody tr[data-symbol] {
+  cursor: pointer;
+}
+
+.dir-table tbody tr[data-symbol]:hover {
+  background: var(--surface-raised);
+}
+
+.dir-symbol {
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.dir-table tr:hover .dir-symbol {
+  color: var(--gold);
+}
+
+.dir-name {
+  max-width: 360px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dir-table .dir-num {
+  text-align: right;
+  font-family: var(--font-number);
+  white-space: nowrap;
+}
+
+.dir-empty {
+  padding: 28px 10px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.dir-pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 0;
+}
+
+.dir-pager .range-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* On phones, hide the Type column to save space */
+@media (max-width: 640px) {
+  .dir-type-col {
+    display: none;
+  }
+
+  .dir-name {
+    max-width: 140px;
+  }
+}
