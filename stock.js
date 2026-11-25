@@ -1,3 +1,8 @@
+// ===== Our server (it adds the API keys, so they never reach the browser) =====
+const API = "https://trading-room-api.aayush-iyer.workers.dev";
+
+// ===== Search bar (on the stock page) =====
+
 // ===== Search bar (on the stock page) =====
 const searchForm = document.querySelector(".search");
 const searchInput = document.querySelector("#search-input");
@@ -19,16 +24,11 @@ searchForm.addEventListener("submit", (event) => {
 
 // ===== Fetch and show a live quote =====
 async function showQuote(symbol) {
-  // No key available (e.g. on the online version, for now)
-  if (typeof FINNHUB_KEY === "undefined") {
-    showMessage("Live prices are coming soon on the online version.");
-    return;
-  }
-
+  
   showMessage(`Loading ${symbol}…`);
 
   try {
-    const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
+    const url = `${API}/finnhub/quote?symbol=${symbol}`;
     const data = await getJSON(url);
 
     // Finnhub returns 0 for tickers it doesn't know
@@ -40,9 +40,9 @@ async function showQuote(symbol) {
     // Company info, key stats and related companies, all at the same time
     // (if any of them fails, use empty data instead of breaking the page)
     const [profile, metrics, peers] = await Promise.all([
-      getJSON(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`).catch(() => ({})),
-      getJSON(`https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=all&token=${FINNHUB_KEY}`).catch(() => ({})),
-      getJSON(`https://finnhub.io/api/v1/stock/peers?symbol=${symbol}&token=${FINNHUB_KEY}`).catch(() => []),
+      getJSON(`${API}/finnhub/stock/profile2?symbol=${symbol}`).catch(() => ({})),
+      getJSON(`${API}/finnhub/stock/metric?symbol=${symbol}&metric=all`).catch(() => ({})),
+      getJSON(`${API}/finnhub/stock/peers?symbol=${symbol}`).catch(() => []),
     ]);
 
     renderQuote(symbol, data, profile, metrics.metric || {}, peers);
@@ -176,10 +176,6 @@ const RANGES = {
 async function loadChart(symbol) {
   const note = document.querySelector("#chart-note");
 
-  if (typeof TWELVEDATA_KEY === "undefined") {
-    note.textContent = "Charts are coming soon on the online version.";
-    return;
-  }
 
   currentSymbol = symbol;
   note.textContent = "Loading chart…";
@@ -233,7 +229,7 @@ async function selectRange(range) {
 
 // Download a price series from Twelve Data → [{ date, close }], oldest → newest
 async function fetchSeries(symbol, interval, outputsize) {
-  const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&timezone=UTC&apikey=${TWELVEDATA_KEY}`;
+    const url = `${API}/twelvedata/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&timezone=UTC`;
   const data = await getJSON(url);
 
   if (data.status !== "ok") {
@@ -538,7 +534,7 @@ async function loadNews(symbol) {
   const day = (d) => d.toISOString().slice(0, 10);   // "2026-11-24"
 
   try {
-    const url = `https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${day(fromDate7)}&to=${day(toDate7)}&token=${FINNHUB_KEY}`;
+       const url = `${API}/finnhub/company-news?symbol=${symbol}&from=${day(fromDate7)}&to=${day(toDate7)}`;
     const items = await getJSON(url);
     const top = (Array.isArray(items) ? items : [])
       .filter((n) => n.headline && n.url)

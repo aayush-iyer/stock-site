@@ -1,3 +1,6 @@
+// ===== Our server (it adds the API keys, so they never reach the browser) =====
+const API = "https://trading-room-api.aayush-iyer.workers.dev";
+
 // ===== Home page: searching takes you to the stock page =====
 const searchForm = document.querySelector(".search");
 const searchInput = document.querySelector("#search-input");
@@ -40,12 +43,6 @@ async function loadDashboard() {
     return;
   }
 
-  // No key available (e.g. on the online version, for now)
-  if (typeof FINNHUB_KEY === "undefined") {
-    pinnedGrid.innerHTML = `<p class="quote-message">Live prices are coming soon on the online version.</p>`;
-    dashNews.innerHTML = "";
-    return;
-  }
 
   // Draw the cards straight away (in a "loading" state), then fill each one in
   pinnedGrid.innerHTML = pins.map(pinCardHTML).join("");
@@ -78,8 +75,8 @@ async function fillPinCard(symbol) {
 
   try {
     const [quote, profile] = await Promise.all([
-      getJSON(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_KEY}`),
-      getJSON(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${FINNHUB_KEY}`).catch(() => ({})),
+            getJSON(`${API}/finnhub/quote?symbol=${symbol}`),
+      getJSON(`${API}/finnhub/stock/profile2?symbol=${symbol}`).catch(() => ({})),
     ]);
 
     const up = quote.dp >= 0;
@@ -95,15 +92,15 @@ async function fillPinCard(symbol) {
   }
 
   // Mini chart of the last month (uses the same saved daily prices as the stock page)
-  if (typeof TWELVEDATA_KEY !== "undefined") {
     try {
-      const history = await getDailyHistory(symbol);
-      drawSparkline(card.querySelector("canvas"), history.slice(-22));
-    } catch (error) {
-      console.error(error);
-    }
+    const history = await getDailyHistory(symbol);
+    drawSparkline(card.querySelector("canvas"), history.slice(-22));
+  } catch (error) {
+    console.error(error);
   }
-}
+      console.error(error);
+  }
+
 
 // A tiny chart with no axes or labels
 function drawSparkline(canvas, points) {
@@ -157,7 +154,7 @@ async function loadDashboardNews(pins) {
   // Ask for each stock's news at the same time; tag each article with its ticker
   const lists = await Promise.all(
     pins.map((symbol) =>
-      getJSON(`https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${day(fromDate)}&to=${day(toDate)}&token=${FINNHUB_KEY}`)
+    getJSON(`${API}/finnhub/company-news?symbol=${symbol}&from=${day(fromDate)}&to=${day(toDate)}`)
         .then((items) => (Array.isArray(items) ? items : []).map((n) => ({ ...n, symbol })))
         .catch(() => [])
     )
@@ -227,7 +224,7 @@ function timeAgo(unixSeconds) {
 
 // Download a price series from Twelve Data → [{ date, close }], oldest → newest
 async function fetchSeries(symbol, interval, outputsize) {
-  const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&timezone=UTC&apikey=${TWELVEDATA_KEY}`;
+    const url = `${API}/twelvedata/time_series?symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&timezone=UTC`;
   const data = await getJSON(url);
   if (data.status !== "ok") {
     throw new Error(data.message || "Chart data unavailable");
