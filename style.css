@@ -1241,3 +1241,81 @@ body {
     max-width: 140px;
   }
 }
+
+/* ===== Practice trade panel (stock page) ===== */
+.trade-panel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.trade-panel .range-buttons {
+  margin-bottom: 10px;
+}
+
+.trade-panel .range-btn {
+  flex: 1;   /* Buy/Sell and Shares/Dollars share the width equally */
+}
+
+.trade-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-number);
+  font-size: 18px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 10px 14px;
+}
+
+.trade-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.trade-preview {
+  min-height: 20px;
+  margin: 8px 0 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.trade-btn {
+  width: 100%;
+}
+
+.trade-confirm {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-control);
+}
+
+.trade-confirm p {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.trade-confirm-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.trade-confirm-btns .btn-gold {
+  flex: 1;
+}
+
+.trade-holding {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.trade-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}

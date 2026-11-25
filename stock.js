@@ -107,6 +107,7 @@ function renderQuote(symbol, q, profile, m, peers) {
         </dl>
         ${rangeBar(q.c, m["52WeekLow"], m["52WeekHigh"])}
         <p class="stat-explain" hidden></p>
+        ${tradePanelHTML(symbol)}
       </aside>
     </div>
 
@@ -764,4 +765,158 @@ refreshTimer = setInterval(refreshQuote, REFRESH_MS);
 // When you come back to the tab, catch up straight away
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshQuote();
+});
+
+// ===== Practice trading panel (Buy / Sell) =====
+// Uses the practice money in portfolio.js. Nothing here is real money or a real order.
+let tradeSide = "buy";      // "buy" or "sell"
+let tradeUnit = "shares";   // "shares" or "dollars"
+let pendingTrade = null;    // the trade waiting for you to press Confirm
+
+function tradePanelHTML(symbol) {
+  tradeSide = "buy";
+  tradeUnit = "shares";
+  pendingTrade = null;
+  return `
+    <div class="trade-panel" data-symbol="${symbol}">
+      <h3 class="stats-title side-title">Practice trade</h3>
+      <div class="range-buttons" role="group" aria-label="Buy or sell">
+        <button type="button" class="range-btn active" data-side="buy" aria-pressed="true">Buy</button>
+        <button type="button" class="range-btn" data-side="sell" aria-pressed="false">Sell</button>
+      </div>
+      <div class="range-buttons" role="group" aria-label="Amount in">
+        <button type="button" class="range-btn active" data-unit="shares" aria-pressed="true">Shares</button>
+        <button type="button" class="range-btn" data-unit="dollars" aria-pressed="false">Dollars</button>
+      </div>
+      <label for="trade-amount" class="sr-only">Amount</label>
+      <input id="trade-amount" class="trade-input" type="number" min="0" step="any" inputmode="decimal" placeholder="Number of shares">
+      <p id="trade-preview" class="trade-preview">&nbsp;</p>
+      <button type="button" id="trade-review" class="btn-gold trade-btn">Review buy</button>
+      <div id="trade-confirm" class="trade-confirm" hidden></div>
+      <p id="trade-holding" class="trade-holding">${holdingText(symbol)}</p>
+      <p class="trade-note">Practice money only, never a real trade. Orders fill straight away at the latest price${isMarketOpen() ? "" : " (the US market is closed, so that's the last closing price)"}.</p>
+    </div>`;
+}
+
+// "You own 2 AAPL shares (avg cost $356.05) · Practice cash $99,287.86"
+function holdingText(symbol) {
+  const account = getAccount();
+  const h = account.holdings[symbol];
+  const owned = h
+    ? `You own ${h.shares} ${symbol} share${h.shares === 1 ? "" : "s"} (avg cost ${practiceMoney(h.cost / h.shares)})`
+    : `You don't own any ${symbol} yet`;
+  return `${owned} · Practice cash ${practiceMoney(account.cash)}`;
+}
+
+// Work out shares, price and total from what you typed (uses the price shown on the page)
+function tradeNumbers() {
+  const amount = Number(document.querySelector("#trade-amount").value);
+  const price = Number((document.querySelector(".quote-price")?.textContent || "").replace(/[^0-9.]/g, ""));
+  if (!(amount > 0) || !(price > 0)) return null;
+  const shares = roundShares(tradeUnit === "shares" ? amount : amount / price);
+  return { shares, price, total: roundMoney(shares * price) };
+}
+
+function showTradeMessage(text, isError) {
+  const preview = document.querySelector("#trade-preview");
+  preview.textContent = text || "\u00a0";
+  preview.classList.toggle("down", Boolean(isError));
+}
+
+function updateTradePreview() {
+  const n = tradeNumbers();
+  showTradeMessage(n ? `≈ ${n.shares} share${n.shares === 1 ? "" : "s"} × ${practiceMoney(n.price)} = ${practiceMoney(n.total)}` : "");
+}
+
+function closeConfirm() {
+  pendingTrade = null;
+  const box = document.querySelector("#trade-confirm");
+  if (box) {
+    box.hidden = true;
+    box.innerHTML = "";
+  }
+}
+
+// Typing an amount updates the preview
+quoteResult.addEventListener("input", (event) => {
+  if (event.target.id === "trade-amount") {
+    closeConfirm();
+    updateTradePreview();
+  }
+});
+
+// All the panel's buttons
+quoteResult.addEventListener("click", (event) => {
+  const panel = event.target.closest(".trade-panel");
+  if (!panel) return;
+  const symbol = panel.dataset.symbol;
+
+  // Buy/Sell and Shares/Dollars switches
+  const sideBtn = event.target.closest("[data-side]");
+  const unitBtn = event.target.closest("[data-unit]");
+  if (sideBtn || unitBtn) {
+    if (sideBtn) tradeSide = sideBtn.dataset.side;
+    if (unitBtn) tradeUnit = unitBtn.dataset.unit;
+    panel.querySelectorAll("[data-side]").forEach((b) => {
+      b.classList.toggle("active", b.dataset.side === tradeSide);
+      b.setAttribute("aria-pressed", b.dataset.side === tradeSide);
+    });
+    panel.querySelectorAll("[data-unit]").forEach((b) => {
+      b.classList.toggle("active", b.dataset.unit === tradeUnit);
+      b.setAttribute("aria-pressed", b.dataset.unit === tradeUnit);
+    });
+    panel.querySelector("#trade-amount").placeholder = tradeUnit === "shares" ? "Number of shares" : "Amount in US$";
+    panel.querySelector("#trade-review").textContent = tradeSide === "buy" ? "Review buy" : "Review sell";
+    closeConfirm();
+    updateTradePreview();
+    return;
+  }
+
+  // Review: show what will happen, with Confirm / Cancel
+  if (event.target.closest("#trade-review")) {
+    const n = tradeNumbers();
+    if (!n) {
+      showTradeMessage("Enter an amount first.", true);
+      return;
+    }
+    pendingTrade = { symbol, side: tradeSide, ...n };
+    const box = panel.querySelector("#trade-confirm");
+    box.innerHTML = `
+      <p>${tradeSide === "buy" ? "Buy" : "Sell"} <strong>${n.shares}</strong> ${symbol} at ${practiceMoney(n.price)}<br>
+      Total: <strong>${practiceMoney(n.total)}</strong></p>
+      <div class="trade-confirm-btns">
+        <button type="button" class="btn-gold" id="trade-confirm-btn">Confirm ${tradeSide}</button>
+        <button type="button" class="range-btn" id="trade-cancel-btn">Cancel</button>
+      </div>`;
+    box.hidden = false;
+    return;
+  }
+
+  if (event.target.closest("#trade-cancel-btn")) {
+    closeConfirm();
+    return;
+  }
+
+  // Confirm: make the practice trade
+  if (event.target.closest("#trade-confirm-btn") && pendingTrade) {
+    const t = pendingTrade;
+    closeConfirm();
+    const result = t.side === "buy"
+      ? practiceBuy(t.symbol, t.shares, t.price)
+      : practiceSell(t.symbol, t.shares, t.price);
+
+    if (!result.ok) {
+      showTradeMessage(result.error, true);
+      return;
+    }
+
+    panel.querySelector("#trade-amount").value = "";
+    showTradeMessage("");
+    panel.querySelector("#trade-holding").textContent = holdingText(t.symbol);
+
+    const verb = t.side === "buy" ? "Bought" : "Sold";
+    const profit = result.trade.profit;
+    const extra = t.side === "sell" ? ` · ${profit >= 0 ? "profit" : "loss"} ${practiceMoney(Math.abs(profit))}` : "";
+    showToast(`${verb} ${t.shares} ${t.symbol} for ${practiceMoney(result.trade.total)}${extra}`);
+  }
 });
