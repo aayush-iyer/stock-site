@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="theme.js"></script>
     <script src="portfolio.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="portfolio-page.js" defer></script>
   </head>
   <body>
@@ -58,6 +59,23 @@
           <p class="summary-sub">Ready to invest</p>
         </div>
       </div>
+      
+      <!-- Allocation (filled in by portfolio-page.js) -->
+      <section class="markets-section" aria-labelledby="alloc-title">
+        <div class="section-head">
+          <h2 id="alloc-title" class="stats-title">Allocation</h2>
+          <span class="section-note">How your money is split</span>
+        </div>
+        <div class="card alloc-card">
+          <div class="alloc-chart-wrap">
+            <canvas id="alloc-chart" role="img" aria-label="Doughnut chart of how your practice money is split"></canvas>
+          </div>
+          <div class="alloc-side">
+            <ul id="alloc-legend" class="alloc-legend"></ul>
+            <p id="alloc-tip" class="alloc-tip"></p>
+          </div>
+        </div>
+      </section>
 
       <!-- Holdings -->
       <section class="markets-section" aria-labelledby="holdings-title">

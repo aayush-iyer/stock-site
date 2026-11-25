@@ -1396,3 +1396,79 @@ body {
 .chip.down {
   color: var(--loss);
 }
+
+/* ===== Allocation chart (Portfolio page) ===== */
+.alloc-card {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.alloc-chart-wrap {
+  position: relative;
+  height: 240px;
+}
+
+.alloc-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alloc-legend li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) 60px auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.alloc-legend li:first-child {
+  border-top: none;
+}
+
+.alloc-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.alloc-name {
+  font-weight: 700;
+}
+
+.alloc-pct,
+.alloc-value {
+  font-family: var(--font-number);
+  text-align: right;
+}
+
+.alloc-pct {
+  color: var(--text-muted);
+}
+
+.alloc-tip {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* On phones, the chart sits above the legend */
+@media (max-width: 760px) {
+  .alloc-card {
+    grid-template-columns: 1fr;
+  }
+
+  .alloc-chart-wrap {
+    height: 200px;
+  }
+}
+
+/* .card is normally capped at 420px wide; these Portfolio cards fill their space instead */
+.alloc-card,
+.summary-card {
+  max-width: none;
+}

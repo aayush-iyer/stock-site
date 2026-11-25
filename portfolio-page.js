@@ -120,6 +120,7 @@ function renderPortfolio(account, prices) {
   }
 
   document.querySelector("#sum-cash").textContent = practiceMoney(account.cash);
+  drawAllocation(account, prices);
 
   const time = new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
   pricesNote.textContent = symbols.length
@@ -187,3 +188,86 @@ window.addEventListener("storage", (event) => {
 });
 
 loadPortfolio();
+
+// ===== Allocation chart: how your money is split =====
+// Colours chosen to stay readable in both dark and light mode; cash is always grey
+const ALLOC_COLOURS = ["#E9C46A", "#7FD6A0", "#F28B82", "#9FA8DA", "#4DB6AC", "#F4A261", "#81D4FA", "#CE93D8", "#FFB74D"];
+const CASH_COLOUR = "#8C7A88";
+let allocChart = null;
+let lastAllocation = null;   // remembered so the chart can redraw when the theme changes
+
+function drawAllocation(account, prices) {
+  lastAllocation = { account, prices };
+
+  // Value of each holding (at live price, or what you paid if the price is missing)
+  const slices = Object.keys(account.holdings).map((symbol) => {
+    const h = account.holdings[symbol];
+    return { label: symbol, value: roundMoney(h.shares * (prices[symbol] ?? h.cost / h.shares)) };
+  }).sort((a, b) => b.value - a.value);
+
+  // More than 9 holdings: group the smallest into "Other"
+  if (slices.length > 9) {
+    const rest = slices.splice(8);
+    slices.push({ label: "Other", value: roundMoney(rest.reduce((sum, s) => sum + s.value, 0)) });
+  }
+  slices.forEach((s, i) => { s.colour = ALLOC_COLOURS[i % ALLOC_COLOURS.length]; });
+  if (account.cash > 0) slices.push({ label: "Cash", value: account.cash, colour: CASH_COLOUR });
+
+  const total = slices.reduce((sum, s) => sum + s.value, 0);
+
+  // Legend: colour, name, % and value
+  const legend = document.querySelector("#alloc-legend");
+  legend.innerHTML = "";
+  slices.forEach((s) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="alloc-swatch" style="background:${s.colour}"></span><span class="alloc-name"></span><span class="alloc-pct">${((s.value / total) * 100).toFixed(1)}%</span><span class="alloc-value">${practiceMoney(s.value)}</span>`;
+    li.querySelector(".alloc-name").textContent = s.label;
+    legend.append(li);
+  });
+
+  // A short tip about diversification
+  const invested = total - account.cash;
+  const biggest = slices.find((s) => s.label !== "Cash" && s.label !== "Other");
+  const tip = document.querySelector("#alloc-tip");
+  if (!biggest) {
+    tip.textContent = "All cash for now. Once you buy, this shows how your money is spread out.";
+  } else if (Object.keys(account.holdings).length > 1 && invested > 0 && biggest.value / invested > 0.5) {    tip.textContent = `Over half of what you've invested is in ${biggest.label}. That's concentrated: one bad day for it moves your whole portfolio. Spreading money across different companies and sectors (diversifying) lowers that risk.`;
+  } else if (Object.keys(account.holdings).length === 1) {    tip.textContent = `Everything you've invested is in one stock (${biggest.label}). Spreading money across different companies and sectors (diversifying) lowers your risk.`;
+  } else {
+    tip.textContent = "Your money is spread across several holdings. That's diversification, which lowers the risk of one company hurting your whole portfolio.";
+  }
+
+  // The doughnut chart itself
+  const css = getComputedStyle(document.documentElement);
+  if (allocChart) allocChart.destroy();
+  allocChart = new Chart(document.querySelector("#alloc-chart"), {
+    type: "doughnut",
+    data: {
+      labels: slices.map((s) => s.label),
+      datasets: [{
+        data: slices.map((s) => s.value),
+        backgroundColor: slices.map((s) => s.colour),
+        borderColor: css.getPropertyValue("--surface").trim(),
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "68%",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => ` ${item.label}: ${practiceMoney(item.parsed)} (${((item.parsed / total) * 100).toFixed(1)}%)`,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Redraw in the new colours when the theme changes
+window.addEventListener("themechange", () => {
+  if (lastAllocation) drawAllocation(lastAllocation.account, lastAllocation.prices);
+});
