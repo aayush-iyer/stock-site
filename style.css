@@ -1013,3 +1013,123 @@ body {
 .market-card .pin-change {
   margin-bottom: 0;
 }
+
+/* ===== Biggest movers ===== */
+.movers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.movers-col {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 8px 18px 12px;
+}
+
+.movers-title {
+  margin: 10px 0 6px;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--gold);
+}
+
+.mover-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 72px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.mover-row:hover .mover-name strong {
+  color: var(--gold);
+}
+
+.mover-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mover-name span {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mover-price,
+.mover-change {
+  font-family: var(--font-number);
+  text-align: right;
+}
+
+/* On phones, gainers sit above losers */
+@media (max-width: 640px) {
+  .movers {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Search suggestions dropdown ===== */
+.search {
+  position: relative;   /* so the dropdown sits right under the search box */
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 380px;
+  overflow-y: auto;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.suggestion {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.suggestion:hover,
+.suggestion.active {
+  background: var(--surface);
+}
+
+.suggestion.active strong,
+.suggestion:hover strong {
+  color: var(--gold);
+}
+
+.suggestion-name {
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-empty {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
