@@ -121,6 +121,7 @@ function renderPortfolio(account, prices) {
 
   document.querySelector("#sum-cash").textContent = practiceMoney(account.cash);
   drawAllocation(account, prices);
+  drawValueChart(account, total);
 
   const time = new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
   pricesNote.textContent = symbols.length
@@ -270,4 +271,202 @@ function drawAllocation(account, prices) {
 // Redraw in the new colours when the theme changes
 window.addEventListener("themechange", () => {
   if (lastAllocation) drawAllocation(lastAllocation.account, lastAllocation.prices);
+});
+
+// ===== Value over time chart =====
+// Rebuilds your account's value for every trading day since you started:
+// cash on that day + (shares you held that day × that day's closing price).
+// Uses the same saved daily prices as the stock pages, so it rarely needs new downloads.
+let valueChart = null;
+let lastValueArgs = null;   // remembered so the chart can redraw when the theme changes
+const seriesCache = {};     // symbol → daily closes, kept while the page is open
+
+// A date in New York time as "2026-11-25" (US market days follow New York time)
+function nyDate(iso) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date(iso));
+}
+
+// Up to 5 years of daily closes (saved for the day under the same name the stock page uses)
+async function getDailyCloses(symbol) {
+  if (seriesCache[symbol]) return seriesCache[symbol];
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `daily-${symbol}-${today}`;
+  let history = null;
+  try {
+    history = JSON.parse(localStorage.getItem(key));
+  } catch (error) {
+    history = null;
+  }
+  if (!history) {
+    const data = await getJSON(`${API}/twelvedata/time_series?symbol=${encodeURIComponent(symbol)}&interval=1day&outputsize=1260&timezone=UTC`);
+    if (data.status !== "ok") throw new Error(data.message || "No price history");
+    history = data.values.map((bar) => ({ date: bar.datetime, close: Number(bar.close) })).reverse();
+    try {
+      localStorage.setItem(key, JSON.stringify(history));
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+  seriesCache[symbol] = history;
+  return history;
+}
+
+// The closing price on a date, or the last close before it
+function closeOn(list, date) {
+  let price = null;
+  for (const p of list || []) {
+    if (p.date > date) break;
+    price = p.close;
+  }
+  return price;
+}
+
+// Work out the value for each trading day → [{ label, value }]
+function buildValuePoints(account, series, currentTotal) {
+  const trades = [...account.trades].reverse();   // oldest first
+  const startDate = nyDate(account.createdAt);
+
+  // Every trading day (from the price data) since the account was created
+  const dates = new Set();
+  Object.values(series).forEach((list) => list.forEach((p) => {
+    if (p.date >= startDate) dates.add(p.date);
+  }));
+
+  let cash = STARTING_CASH;
+  const shares = {};
+  const lastTradePrice = {};
+  let next = 0;
+  const points = [{ label: startDate, value: STARTING_CASH }];
+
+  [...dates].sort().forEach((date) => {
+    // Apply every trade made on or before this day
+    while (next < trades.length && nyDate(trades[next].time) <= date) {
+      const t = trades[next++];
+      cash += t.side === "buy" ? -t.total : t.total;
+      shares[t.symbol] = (shares[t.symbol] || 0) + (t.side === "buy" ? t.shares : -t.shares);
+      lastTradePrice[t.symbol] = t.price;
+    }
+    let value = cash;
+    Object.keys(shares).forEach((symbol) => {
+      if (shares[symbol] <= 0.00005) return;
+      const price = closeOn(series[symbol], date) ?? lastTradePrice[symbol];
+      value += shares[symbol] * price;
+    });
+    points.push({ label: date, value: roundMoney(value) });
+  });
+
+  // If the account was created on a trading day, that day's close replaces the starting point
+  if (points[1] && points[1].label === startDate) points.shift();
+
+  points.push({ label: "Now", value: currentTotal });
+  return points;
+}
+
+function valueLabel(label) {
+  if (label === "Now") return "Now";
+  return new Date(`${label}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+async function drawValueChart(account, currentTotal) {
+  lastValueArgs = { account, currentTotal };
+  const note = document.querySelector("#value-note");
+
+  if (account.trades.length === 0) {
+    note.textContent = "Your account's value over time will appear here after your first trade.";
+    if (valueChart) {
+      valueChart.destroy();
+      valueChart = null;
+    }
+    return;
+  }
+
+  // Daily prices for every stock you've ever traded
+  const symbols = [...new Set(account.trades.map((t) => t.symbol))];
+  const series = {};
+  const results = await Promise.allSettled(symbols.map(async (symbol) => {
+    series[symbol] = await getDailyCloses(symbol);
+  }));
+  const missing = results.some((r) => r.status === "rejected");
+
+  const points = buildValuePoints(account, series, currentTotal);
+  note.textContent = missing
+    ? "Some price history couldn't load right now, so parts of this chart use your trade prices instead."
+    : (points.length <= 3 ? "Just getting started: a new point is added after each US trading day." : "");
+
+  // Draw it: a green (up) or red (down) line vs a dashed line at your US$100,000 start
+  const css = getComputedStyle(document.documentElement);
+  const colour = (name) => css.getPropertyValue(name).trim();
+  const lineColour = colour(currentTotal >= STARTING_CASH ? "--gain" : "--loss");
+
+  if (valueChart) valueChart.destroy();
+  valueChart = new Chart(document.querySelector("#value-chart"), {
+    type: "line",
+    data: {
+      labels: points.map((p) => p.label),
+      datasets: [
+        {
+          data: points.map((p) => p.value),
+          borderColor: lineColour,
+          borderWidth: 2,
+          pointRadius: points.length <= 12 ? 3 : 0,
+          pointBackgroundColor: lineColour,
+          pointHoverRadius: 4,
+          tension: 0.25,
+        },
+        {
+          data: points.map(() => STARTING_CASH),
+          borderColor: colour("--text-muted"),
+          borderDash: [6, 6],
+          borderWidth: 1,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          displayColors: false,
+          filter: (item) => item.datasetIndex === 0,   // only show your value, not the dashed line
+          backgroundColor: colour("--surface-raised"),
+          borderColor: colour("--gold"),
+          borderWidth: 1,
+          padding: 10,
+          cornerRadius: 10,
+          titleColor: colour("--gold"),
+          bodyColor: colour("--text"),
+          callbacks: {
+            title: (items) => valueLabel(items[0].label),
+            label: (item) => practiceMoney(item.parsed.y),
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: colour("--text-muted"),
+            maxTicksLimit: 6,
+            maxRotation: 0,
+            callback: function (value) {
+              const label = this.getLabelForValue(value);
+              return label === "Now" ? "Now" : new Date(`${label}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+            },
+          },
+        },
+        y: {
+          grid: { color: colour("--border") },
+          ticks: { color: colour("--text-muted"), callback: (value) => practiceMoney(value) },
+        },
+      },
+    },
+  });
+}
+
+window.addEventListener("themechange", () => {
+  if (lastValueArgs) drawValueChart(lastValueArgs.account, lastValueArgs.currentTotal);
 });

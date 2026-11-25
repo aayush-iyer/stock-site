@@ -76,6 +76,20 @@
           </div>
         </div>
       </section>
+      
+      <!-- Value over time (filled in by portfolio-page.js) -->
+      <section class="markets-section" aria-labelledby="value-title">
+        <div class="section-head">
+          <h2 id="value-title" class="stats-title">Value over time</h2>
+          <span class="section-note">Dashed line = your US$100,000 start</span>
+        </div>
+        <div class="card value-card">
+          <div class="value-chart-wrap">
+            <canvas id="value-chart" role="img" aria-label="Line chart of your practice account's value since you started"></canvas>
+          </div>
+          <p id="value-note" class="alloc-tip"></p>
+        </div>
+      </section>
 
       <!-- Holdings -->
       <section class="markets-section" aria-labelledby="holdings-title">

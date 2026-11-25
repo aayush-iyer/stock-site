@@ -1472,3 +1472,19 @@ body {
 .summary-card {
   max-width: none;
 }
+
+/* ===== Value over time chart (Portfolio page) ===== */
+.value-card {
+  max-width: none;
+}
+
+.value-chart-wrap {
+  position: relative;
+  height: 260px;
+}
+
+@media (max-width: 760px) {
+  .value-chart-wrap {
+    height: 200px;
+  }
+}
