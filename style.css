@@ -964,3 +964,19 @@ body {
     transition: none;
   }
 }
+
+/* ===== Price flash when a live update changes the price ===== */
+@keyframes price-flash {
+  0%   { color: var(--gold); }
+  100% { color: var(--text); }
+}
+
+.quote-price.flash {
+  animation: price-flash 1.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-price.flash {
+    animation: none;
+  }
+}

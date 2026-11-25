@@ -98,10 +98,7 @@ async function fillPinCard(symbol) {
   } catch (error) {
     console.error(error);
   }
-      console.error(error);
   }
-
-
 // A tiny chart with no axes or labels
 function drawSparkline(canvas, points) {
   const prices = points.map((p) => p.close);
@@ -256,3 +253,48 @@ window.addEventListener("pageshow", loadDashboard);
 
 // Redraw the mini charts in the new colours when the theme changes
 window.addEventListener("themechange", loadDashboard);
+
+// ===== Near-live updates for pinned cards =====
+// While the US market is open, every pinned card's price refreshes once a minute
+// (paused when the tab is hidden). The count line shows when prices were last updated.
+function dashboardMarketOpen() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "numeric", hour12: false,
+  }).formatToParts(new Date());
+  const get = (type) => parts.find((p) => p.type === type).value;
+  const minutes = (Number(get("hour")) % 24) * 60 + Number(get("minute"));
+  const isWeekday = !["Sat", "Sun"].includes(get("weekday"));
+  return isWeekday && minutes >= 9 * 60 + 30 && minutes < 16 * 60;
+}
+
+async function refreshPinCards() {
+  const pins = getPins();
+  if (document.hidden || pins.length === 0 || !dashboardMarketOpen()) return;
+
+  await Promise.all(pins.map(async (symbol) => {
+    const card = pinnedGrid.querySelector(`.pin-card[data-symbol="${symbol}"]`);
+    if (!card) return;
+    try {
+      const quote = await getJSON(`${API}/finnhub/quote?symbol=${symbol}`);
+      if (!quote || !quote.c) return;
+      const up = quote.dp >= 0;
+      card.querySelector(".pin-price").textContent = formatMoney(quote.c);
+      const change = card.querySelector(".pin-change");
+      change.textContent = `${up ? "+" : ""}${quote.dp.toFixed(2)}% today`;
+      change.classList.toggle("up", up);
+      change.classList.toggle("down", !up);
+    } catch (error) {
+      console.error(error);   // keep the old price if one refresh fails
+    }
+  }));
+
+  const time = new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  pinCount.textContent = `${pins.length} of ${MAX_PINS} pinned · updated ${time}`;
+}
+
+setInterval(refreshPinCards, 60 * 1000);
+
+// Coming back to the tab: catch up straight away
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshPinCards();
+}); 

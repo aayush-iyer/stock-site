@@ -99,8 +99,8 @@ function renderQuote(symbol, q, profile, m, peers) {
         <dl class="side-stats">
           <div><dt>Open</dt><dd>${formatMoney(q.o)}</dd></div>
           <div><dt>Prev. close</dt><dd>${formatMoney(q.pc)}</dd></div>
-          <div><dt>Day high</dt><dd>${formatMoney(q.h)}</dd></div>
-          <div><dt>Day low</dt><dd>${formatMoney(q.l)}</dd></div>
+          <div><dt>Day high</dt><dd id="stat-high">${formatMoney(q.h)}</dd></div>
+          <div><dt>Day low</dt><dd id="stat-low">${formatMoney(q.l)}</dd></div>
           ${statRow("marketCap", "Market cap", formatBigMoney(profile.marketCapitalization))}
           ${statRow("high52", "52-week high", formatMoneyOrDash(m["52WeekHigh"]))}
           ${statRow("low52", "52-week low", formatMoneyOrDash(m["52WeekLow"]))}
@@ -690,4 +690,78 @@ window.addEventListener("themechange", () => {
   if (currentSymbol && priceChart) {
     selectRange(currentRange);
   }
+});
+
+// ===== Near-live updates =====
+// While the US market is open, the price refreshes every minute.
+// It pauses when the tab is hidden, and when the market is closed only the open/closed status updates.
+const REFRESH_MS = 60 * 1000;   // 1 minute (our server also saves quotes for 1 minute)
+let refreshTimer = null;
+
+function isMarketOpen() {
+  const { dayIndex, minutes } = newYorkNow();
+  const isWeekday = dayIndex >= 1 && dayIndex <= 5;
+  return isWeekday && minutes >= 9 * 60 + 30 && minutes < 16 * 60;
+}
+
+async function refreshQuote() {
+  if (!currentSymbol || document.hidden) return;
+
+  // Keep the "opens in 10h 46m" countdown up to date
+  const status = document.querySelector(".market-status");
+  if (status) status.innerHTML = marketStatusHTML();
+
+  if (!isMarketOpen()) return;
+
+  try {
+    const q = await getJSON(`${API}/finnhub/quote?symbol=${currentSymbol}`);
+    if (q && q.c) updateQuoteNumbers(q);
+    
+    // If the 1D chart is showing, add new 5-minute points as they arrive
+    if (currentRange === "1D" && priceChart) {
+      const points = await getIntraday(currentSymbol, "1D");
+      const lastOnChart = priceChart.data.labels[priceChart.data.labels.length - 1];
+      const lastNew = points[points.length - 1]?.date;
+      if (currentRange === "1D" && lastNew && lastNew !== lastOnChart) {
+        drawChart(points, "1D");
+      }
+    }
+  } catch (error) {
+    console.error(error);   // if one refresh fails, keep the old numbers on screen
+  }
+}
+
+// Put new numbers on the page without redrawing everything
+function updateQuoteNumbers(q) {
+  const priceEl = document.querySelector(".quote-price");
+  const changeEl = document.querySelector(".quote-change");
+  if (!priceEl || !changeEl) return;
+
+  const oldPrice = priceEl.textContent;
+  const newPrice = formatMoney(q.c);
+  priceEl.textContent = newPrice;
+
+  const sign = q.d >= 0 ? "+" : "";
+  changeEl.textContent = `${sign}${q.d.toFixed(2)} (${sign}${q.dp.toFixed(2)}%) today`;
+  changeEl.classList.toggle("up", q.d >= 0);
+  changeEl.classList.toggle("down", q.d < 0);
+
+  const high = document.querySelector("#stat-high");
+  const low = document.querySelector("#stat-low");
+  if (high) high.textContent = formatMoney(q.h);
+  if (low) low.textContent = formatMoney(q.l);
+
+  // A short gold flash when the price changes
+  if (oldPrice !== newPrice) {
+    priceEl.classList.remove("flash");
+    void priceEl.offsetWidth;   // restarts the animation
+    priceEl.classList.add("flash");
+  }
+}
+
+refreshTimer = setInterval(refreshQuote, REFRESH_MS);
+
+// When you come back to the tab, catch up straight away
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshQuote();
 });
