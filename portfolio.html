@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio · The Trading Room</title>
+
+    <!-- Fonts: Cormorant Garamond (headings), Fraunces (numbers), Lato (text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Fraunces:opsz,wght@9..144,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js"></script>
+    <script src="portfolio.js" defer></script>
+    <script src="portfolio-page.js" defer></script>
+  </head>
+  <body>
+
+    <!-- ===== Top navigation bar ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">The Trading Room</a>
+        <nav class="nav" aria-label="Main">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="markets.html" class="nav-link">Markets</a>
+          <a href="portfolio.html" class="nav-link active" aria-current="page">Portfolio</a>
+          <a href="#" class="nav-link">Learn</a>
+          <a href="#" class="nav-link">Challenges</a>
+          <button type="button" class="theme-toggle" aria-label="Switch theme">☀</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===== Portfolio page ===== -->
+    <main class="container">
+      <div class="markets-head">
+        <p class="label">Practice</p>
+        <h1 class="greeting">Portfolio</h1>
+        <p class="markets-intro">Your practice holdings, valued at the latest prices. Everything here uses practice money, never real money.</p>
+      </div>
+
+      <!-- Summary (filled in by portfolio-page.js) -->
+      <div class="summary-grid">
+        <div class="card summary-card">
+          <p class="label">Total value</p>
+          <p id="sum-total" class="summary-number">—</p>
+          <p id="sum-return" class="summary-sub">&nbsp;</p>
+        </div>
+        <div class="card summary-card">
+          <p class="label">Holdings</p>
+          <p id="sum-holdings" class="summary-number">—</p>
+          <p id="sum-holdings-pl" class="summary-sub">&nbsp;</p>
+        </div>
+        <div class="card summary-card">
+          <p class="label">Cash</p>
+          <p id="sum-cash" class="summary-number">—</p>
+          <p class="summary-sub">Ready to invest</p>
+        </div>
+      </div>
+
+      <!-- Holdings -->
+      <section class="markets-section" aria-labelledby="holdings-title">
+        <div class="section-head">
+          <h2 id="holdings-title" class="stats-title">Your holdings</h2>
+          <span id="prices-note" class="section-note"></span>
+        </div>
+        <div class="dir-wrap">
+          <table class="dir-table">
+            <thead>
+              <tr>
+                <th scope="col">Ticker</th>
+                <th scope="col" class="dir-num">Shares</th>
+                <th scope="col" class="dir-num">Avg cost</th>
+                <th scope="col" class="dir-num">Price</th>
+                <th scope="col" class="dir-num">Value</th>
+                <th scope="col" class="dir-num">Profit / loss</th>
+              </tr>
+            </thead>
+            <tbody id="holdings-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Trade history -->
+      <section class="markets-section" aria-labelledby="history-title">
+        <div class="section-head">
+          <h2 id="history-title" class="stats-title">Trade history</h2>
+          <span id="history-note" class="section-note"></span>
+        </div>
+        <div class="dir-wrap">
+          <table class="dir-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Trade</th>
+                <th scope="col" class="dir-num">Shares</th>
+                <th scope="col" class="dir-num">Price</th>
+                <th scope="col" class="dir-num">Total</th>
+                <th scope="col" class="dir-num">Profit / loss</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+  </body>
+</html>

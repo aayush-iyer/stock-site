@@ -1319,3 +1319,80 @@ body {
   line-height: 1.5;
   color: var(--text-muted);
 }
+
+/* ===== Portfolio page ===== */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 40px;
+}
+
+.summary-card {
+  margin: 0;
+}
+
+.summary-number {
+  margin: 4px 0 6px;
+  font-family: var(--font-number);
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.summary-sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.summary-sub.up {
+  color: var(--gain);
+}
+
+.summary-sub.down {
+  color: var(--loss);
+}
+
+.side-tag {
+  display: inline-block;
+  min-width: 34px;
+  margin-right: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 999px;
+}
+
+.side-tag.buy {
+  color: var(--gain);
+  border: 1px solid var(--gain);
+}
+
+.side-tag.sell {
+  color: var(--loss);
+  border: 1px solid var(--loss);
+}
+
+.trade-date {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* On phones, the three summary cards stack */
+@media (max-width: 760px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Home portfolio card: green/red "today" chip */
+.chip.up {
+  color: var(--gain);
+}
+
+.chip.down {
+  color: var(--loss);
+}

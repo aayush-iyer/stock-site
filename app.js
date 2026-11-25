@@ -298,3 +298,49 @@ setInterval(refreshPinCards, 60 * 1000);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshPinCards();
 }); 
+
+// ===== Practice portfolio card (top right) =====
+// Shows your real practice account: total value (cash + holdings at live prices) and today's change
+async function updatePortfolioCard() {
+  const account = getAccount();
+  const symbols = Object.keys(account.holdings);
+  let holdingsValue = 0;
+  let todayChange = 0;
+
+  await Promise.all(symbols.map(async (symbol) => {
+    const h = account.holdings[symbol];
+    try {
+      const q = await getJSON(`${API}/finnhub/quote?symbol=${encodeURIComponent(symbol)}`);
+      if (q && q.c) {
+        holdingsValue += h.shares * q.c;
+        todayChange += h.shares * (q.d || 0);
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    holdingsValue += h.cost;   // no price: count it at what you paid
+  }));
+
+  const total = roundMoney(account.cash + holdingsValue);
+  const [dollars, cents] = practiceMoney(total).split(".");
+  document.querySelector("#pf-total").innerHTML = `${dollars}<span class="cents">.${cents}</span>`;
+
+  const chip = document.querySelector("#pf-change");
+  const before = total - todayChange;
+  const pct = before > 0 ? (todayChange / before) * 100 : 0;
+  chip.textContent = symbols.length
+    ? `${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(2)}% today`
+    : "Ready to invest";
+  chip.classList.toggle("up", symbols.length > 0 && pct >= 0);
+  chip.classList.toggle("down", symbols.length > 0 && pct < 0);
+
+  document.querySelector("#pf-note").textContent = symbols.length
+    ? `${symbols.length} holding${symbols.length === 1 ? "" : "s"} · ${practiceMoney(account.cash)} cash · practice money`
+    : "US$100,000 of practice money to start";
+}
+
+window.addEventListener("pageshow", updatePortfolioCard);
+setInterval(() => {
+  if (!document.hidden && dashboardMarketOpen()) updatePortfolioCard();
+}, 60 * 1000);
