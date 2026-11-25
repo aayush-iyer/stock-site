@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markets · The Trading Room</title>
+
+    <!-- Fonts: Cormorant Garamond (headings), Fraunces (numbers), Lato (text) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Fraunces:opsz,wght@9..144,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="markets.js" defer></script>
+  </head>
+  <body>
+
+    <!-- ===== Top navigation bar ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">The Trading Room</a>
+        <nav class="nav" aria-label="Main">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="markets.html" class="nav-link active" aria-current="page">Markets</a>
+          <a href="#" class="nav-link">Portfolio</a>
+          <a href="#" class="nav-link">Learn</a>
+          <a href="#" class="nav-link">Challenges</a>
+          <button type="button" class="theme-toggle" aria-label="Switch theme">☀</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===== Markets page ===== -->
+    <main class="container">
+      <div class="markets-head">
+        <p class="label">Explore</p>
+        <h1 class="greeting">Markets</h1>
+        <p class="markets-intro">Live prices for popular US stocks and funds. Tap any one to see its chart, stats and news.</p>
+      </div>
+
+      <!-- Search bar -->
+      <form class="search" role="search">
+        <label for="search-input" class="sr-only">Search stocks</label>
+        <input id="search-input" type="search" placeholder="Search a stock, e.g. AAPL" autocomplete="off">
+        <button type="submit" class="btn-gold">Search</button>
+      </form>
+
+      <!-- Popular stocks and ETFs (filled in by markets.js) -->
+      <section class="markets-section" aria-labelledby="popular-title">
+        <div class="section-head">
+          <h2 id="popular-title" class="stats-title">Popular stocks &amp; ETFs</h2>
+          <span id="market-note" class="section-note"></span>
+        </div>
+        <div id="market-grid" class="pinned-grid"></div>
+      </section>
+    </main>
+
+  </body>
+</html>
