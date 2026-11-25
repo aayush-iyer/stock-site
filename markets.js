@@ -106,7 +106,7 @@ async function loadMarkets() {
   marketNote.textContent = `Prices updated ${time}`;
 }
 
-loadMarkets();
+loadMarkets().then(renderMovers);
 
 // ===== Near-live updates =====
 // While the US market is open, every card refreshes once a minute (paused when the tab is hidden)
@@ -123,6 +123,7 @@ function isMarketOpen() {
 async function refreshMarkets() {
   if (document.hidden || !isMarketOpen()) return;
   await Promise.all(POPULAR.map(fillMarketCard));   // updates the numbers on the existing cards
+    renderMovers();
   const time = new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
   marketNote.textContent = `Prices updated ${time}`;
 }
@@ -131,4 +132,64 @@ setInterval(refreshMarkets, 60 * 1000);
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) refreshMarkets();
+});
+
+// ===== Biggest movers today (from the popular list) =====
+const moversBox = document.querySelector("#movers");
+
+function moverRowHTML(item, q) {
+  const up = q.dp >= 0;
+  return `
+    <a class="mover-row" href="stock.html?symbol=${item.symbol}">
+      <span class="mover-name"><strong>${item.symbol}</strong><span>${item.name}</span></span>
+      <span class="mover-price">${formatMoney(q.c)}</span>
+      <span class="mover-change ${up ? "up" : "down"}">${up ? "+" : ""}${q.dp.toFixed(2)}%</span>
+    </a>`;
+}
+
+function renderMovers() {
+  const withPrices = POPULAR.filter((item) => latestQuotes[item.symbol]);
+  if (withPrices.length === 0) {
+    moversBox.innerHTML = `<p class="quote-message">Movers will appear once prices load.</p>`;
+    return;
+  }
+
+  // Sort from biggest rise to biggest fall
+  const sorted = [...withPrices].sort((a, b) => latestQuotes[b.symbol].dp - latestQuotes[a.symbol].dp);
+  const gainers = sorted.filter((i) => latestQuotes[i.symbol].dp > 0).slice(0, 3);
+  const losers = sorted.filter((i) => latestQuotes[i.symbol].dp < 0).reverse().slice(0, 3);
+
+  const column = (title, list, emptyText) => `
+    <div class="movers-col">
+      <h3 class="movers-title">${title}</h3>
+      ${list.length
+        ? list.map((i) => moverRowHTML(i, latestQuotes[i.symbol])).join("")
+        : `<p class="quote-message">${emptyText}</p>`}
+    </div>`;
+
+  moversBox.innerHTML =
+    column("Top gainers", gainers, "Nothing on the list is up today.") +
+    column("Top losers", losers, "Nothing on the list is down today.");
+}
+
+// ===== Sector filter buttons =====
+const filterBar = document.querySelector("#sector-filters");
+
+filterBar.addEventListener("click", (event) => {
+  const button = event.target.closest(".range-btn");
+  if (!button) return;
+  const sector = button.dataset.sector;
+
+  // Highlight the chosen button
+  filterBar.querySelectorAll(".range-btn").forEach((btn) => {
+    const chosen = btn === button;
+    btn.classList.toggle("active", chosen);
+    btn.setAttribute("aria-pressed", chosen);
+  });
+
+  // Show only the cards in that sector ("All" shows everything)
+  POPULAR.forEach((item) => {
+    const card = marketGrid.querySelector(`.market-card[data-symbol="${item.symbol}"]`);
+    if (card) card.hidden = sector !== "All" && item.sector !== sector;
+  });
 });

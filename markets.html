@@ -46,12 +46,32 @@
         <input id="search-input" type="search" placeholder="Search a stock, e.g. AAPL" autocomplete="off">
         <button type="submit" class="btn-gold">Search</button>
       </form>
+      
+      <!-- Biggest movers today (filled in by markets.js) -->
+      <section class="markets-section" aria-labelledby="movers-title">
+        <div class="section-head">
+          <h2 id="movers-title" class="stats-title">Biggest movers</h2>
+          <span class="section-note">From the popular list · latest session</span>
+        </div>
+        <div id="movers" class="movers">
+          <p class="quote-message">Loading movers…</p>
+        </div>
+      </section>
 
       <!-- Popular stocks and ETFs (filled in by markets.js) -->
       <section class="markets-section" aria-labelledby="popular-title">
         <div class="section-head">
           <h2 id="popular-title" class="stats-title">Popular stocks &amp; ETFs</h2>
           <span id="market-note" class="section-note"></span>
+        </div>
+                <div id="sector-filters" class="range-buttons sector-filters" role="group" aria-label="Filter by sector">
+          <button type="button" class="range-btn active" data-sector="All" aria-pressed="true">All</button>
+          <button type="button" class="range-btn" data-sector="Tech" aria-pressed="false">Tech</button>
+          <button type="button" class="range-btn" data-sector="Consumer" aria-pressed="false">Consumer</button>
+          <button type="button" class="range-btn" data-sector="Finance" aria-pressed="false">Finance</button>
+          <button type="button" class="range-btn" data-sector="Healthcare" aria-pressed="false">Healthcare</button>
+          <button type="button" class="range-btn" data-sector="Energy" aria-pressed="false">Energy</button>
+          <button type="button" class="range-btn" data-sector="ETF" aria-pressed="false">ETFs</button>
         </div>
         <div id="market-grid" class="pinned-grid"></div>
       </section>
