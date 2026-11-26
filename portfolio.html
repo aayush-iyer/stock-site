@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="theme.js"></script>
     <script src="portfolio.js" defer></script>
+    <script src="currency.js" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="portfolio-page.js" defer></script>
   </head>
@@ -40,6 +41,12 @@
         <h1 class="greeting">Portfolio</h1>
         <p class="markets-intro">Your practice holdings, valued at the latest prices. Everything here uses practice money, never real money.</p>
       </div>
+      <!-- Currency picker -->
+      <div class="currency-row">
+        <label for="currency-select" class="section-note">Show values in</label>
+        <select id="currency-select" class="currency-select"></select>
+      </div>
+      <p id="currency-note" class="currency-note"></p>
 
       <!-- Summary (filled in by portfolio-page.js) -->
       <div class="summary-grid">

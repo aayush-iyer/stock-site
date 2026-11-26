@@ -323,9 +323,9 @@ async function updatePortfolioCard() {
   }));
 
   const total = roundMoney(account.cash + holdingsValue);
-  const [dollars, cents] = practiceMoney(total).split(".");
-  document.querySelector("#pf-total").innerHTML = `${dollars}<span class="cents">.${cents}</span>`;
-
+    const [whole, cents] = displayMoney(total).split(".");
+  document.querySelector("#pf-total").innerHTML = cents ? `${whole}<span class="cents">.${cents}</span>` : whole;
+  
   const chip = document.querySelector("#pf-change");
   const before = total - todayChange;
   const pct = before > 0 ? (todayChange / before) * 100 : 0;
@@ -336,7 +336,7 @@ async function updatePortfolioCard() {
   chip.classList.toggle("down", symbols.length > 0 && pct < 0);
 
   document.querySelector("#pf-note").textContent = symbols.length
-    ? `${symbols.length} holding${symbols.length === 1 ? "" : "s"} · ${practiceMoney(account.cash)} cash · practice money`
+    ? `${symbols.length} holding${symbols.length === 1 ? "" : "s"} · ${displayMoney(account.cash)} cash · practice money`
     : "US$100,000 of practice money to start";
 }
 
@@ -344,3 +344,6 @@ window.addEventListener("pageshow", updatePortfolioCard);
 setInterval(() => {
   if (!document.hidden && dashboardMarketOpen()) updatePortfolioCard();
 }, 60 * 1000);
+
+// Show the card in the currency chosen on the Portfolio page
+window.addEventListener("currencychange", updatePortfolioCard);

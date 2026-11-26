@@ -18,7 +18,7 @@ async function getJSON(url) {
 
 // +$12.34 / −$5.00 (a proper minus sign for losses)
 function signedMoney(n) {
-  return `${n >= 0 ? "+" : "−"}${practiceMoney(Math.abs(n))}`;
+  return `${n >= 0 ? "+" : "−"}${displayMoney(Math.abs(n))}`;
 }
 
 function signedPercent(n) {
@@ -88,9 +88,9 @@ function renderPortfolio(account, prices) {
       tr.innerHTML = `
         <td><a class="dir-symbol" href="stock.html?symbol=${encodeURIComponent(symbol)}"></a></td>
         <td class="dir-num">${h.shares}</td>
-        <td class="dir-num">${practiceMoney(avgCost)}</td>
-        <td class="dir-num">${price ? practiceMoney(price) : "—"}</td>
-        <td class="dir-num">${practiceMoney(value)}</td>
+        <td class="dir-num">${displayMoney(avgCost)}</td>
+        <td class="dir-num">${price ? displayMoney(price) : "—"}</td>
+        <td class="dir-num">${displayMoney(value)}</td>
         <td class="dir-num pl-cell"></td>`;
       tr.querySelector(".dir-symbol").textContent = symbol;   // textContent = safe
       setChange(tr.querySelector(".pl-cell"), profit, h.cost ? (profit / h.cost) * 100 : 0);
@@ -104,12 +104,12 @@ function renderPortfolio(account, prices) {
   const overall = roundMoney(total - STARTING_CASH);
   const unrealised = roundMoney(holdingsValue - holdingsCost);
 
-  document.querySelector("#sum-total").textContent = practiceMoney(total);
+  document.querySelector("#sum-total").textContent = displayMoney(total);
   const returnEl = document.querySelector("#sum-return");
   setChange(returnEl, overall, (overall / STARTING_CASH) * 100);
-  returnEl.textContent += ` since you started with ${practiceMoney(STARTING_CASH)}`;
+  returnEl.textContent += ` since you started with ${displayMoney(STARTING_CASH)}`;
 
-  document.querySelector("#sum-holdings").textContent = practiceMoney(holdingsValue);
+  document.querySelector("#sum-holdings").textContent = displayMoney(holdingsValue);
   const holdingsPl = document.querySelector("#sum-holdings-pl");
   if (symbols.length) {
     setChange(holdingsPl, unrealised, holdingsCost ? (unrealised / holdingsCost) * 100 : 0);
@@ -119,7 +119,7 @@ function renderPortfolio(account, prices) {
     holdingsPl.classList.remove("up", "down");
   }
 
-  document.querySelector("#sum-cash").textContent = practiceMoney(account.cash);
+  document.querySelector("#sum-cash").textContent = displayMoney(account.cash);
   drawAllocation(account, prices);
   drawValueChart(account, total);
 
@@ -150,8 +150,8 @@ function renderPortfolio(account, prices) {
       <td class="trade-date"></td>
       <td><span class="side-tag ${t.side}"></span> <a class="dir-symbol" href="stock.html?symbol=${encodeURIComponent(t.symbol)}"></a></td>
       <td class="dir-num">${t.shares}</td>
-      <td class="dir-num">${practiceMoney(t.price)}</td>
-      <td class="dir-num">${practiceMoney(t.total)}</td>
+      <td class="dir-num">${displayMoney(t.price)}</td>
+      <td class="dir-num">${displayMoney(t.total)}</td>
       <td class="dir-num pl-cell">—</td>`;
     tr.querySelector(".trade-date").textContent = when;
     tr.querySelector(".side-tag").textContent = t.side === "buy" ? "Buy" : "Sell";
@@ -221,7 +221,7 @@ function drawAllocation(account, prices) {
   legend.innerHTML = "";
   slices.forEach((s) => {
     const li = document.createElement("li");
-    li.innerHTML = `<span class="alloc-swatch" style="background:${s.colour}"></span><span class="alloc-name"></span><span class="alloc-pct">${((s.value / total) * 100).toFixed(1)}%</span><span class="alloc-value">${practiceMoney(s.value)}</span>`;
+    li.innerHTML = `<span class="alloc-swatch" style="background:${s.colour}"></span><span class="alloc-name"></span><span class="alloc-pct">${((s.value / total) * 100).toFixed(1)}%</span><span class="alloc-value">${displayMoney(s.value)}</span>`;
     li.querySelector(".alloc-name").textContent = s.label;
     legend.append(li);
   });
@@ -260,7 +260,7 @@ function drawAllocation(account, prices) {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (item) => ` ${item.label}: ${practiceMoney(item.parsed)} (${((item.parsed / total) * 100).toFixed(1)}%)`,
+            label: (item) => ` ${item.label}: ${displayMoney(item.parsed)} (${((item.parsed / total) * 100).toFixed(1)}%)`,
           },
         },
       },
@@ -441,7 +441,7 @@ async function drawValueChart(account, currentTotal) {
           bodyColor: colour("--text"),
           callbacks: {
             title: (items) => valueLabel(items[0].label),
-            label: (item) => practiceMoney(item.parsed.y),
+            label: (item) => displayMoney(item.parsed.y),
           },
         },
       },
@@ -460,7 +460,7 @@ async function drawValueChart(account, currentTotal) {
         },
         y: {
           grid: { color: colour("--border") },
-          ticks: { color: colour("--text-muted"), callback: (value) => practiceMoney(value) },
+          ticks: { color: colour("--text-muted"), callback: (value) => displayMoney(value) },
         },
       },
     },
@@ -470,3 +470,23 @@ async function drawValueChart(account, currentTotal) {
 window.addEventListener("themechange", () => {
   if (lastValueArgs) drawValueChart(lastValueArgs.account, lastValueArgs.currentTotal);
 });
+
+// ===== Currency picker =====
+// Fills the "Show values in" list; choosing one re-shows everything in that currency
+const currencySelect = document.querySelector("#currency-select");
+const currencyNoteEl = document.querySelector("#currency-note");
+
+currencySelect.innerHTML = Object.entries(CURRENCIES)
+  .map(([code, name]) => `<option value="${code}">${code} · ${name}</option>`)
+  .join("");
+currencySelect.value = getDisplayCurrency();
+
+currencySelect.addEventListener("change", () => setDisplayCurrency(currencySelect.value));
+
+window.addEventListener("currencychange", () => {
+  currencySelect.value = getDisplayCurrency();
+  currencyNoteEl.textContent = currencyNote();
+  loadPortfolio();
+});
+
+currencyNoteEl.textContent = currencyNote();
