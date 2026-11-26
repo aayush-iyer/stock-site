@@ -1528,3 +1528,35 @@ body {
   gap: 10px;
   margin: -16px 0 48px;
 }
+
+/* ===== Reset practice account (Portfolio page) ===== */
+.reset-row {
+  margin: -24px 0 56px;
+}
+
+.reset-btn {
+  color: var(--loss);
+  border-color: var(--loss);
+}
+
+.reset-confirm {
+  max-width: 480px;
+  border-color: var(--loss);
+}
+
+.btn-danger {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: var(--loss);
+  border: none;
+  border-radius: var(--radius-control);
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  filter: brightness(1.08);
+}

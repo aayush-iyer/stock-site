@@ -564,3 +564,28 @@ document.querySelector("#csv-holdings").addEventListener("click", () => {
 document.querySelector("#csv-trades").addEventListener("click", () => {
   downloadCSV(`trading-room-trades-${csvDate()}.csv`, tradeRows(getAccount()));
 });
+
+// ===== Reset practice account =====
+// Asks first (on the page, not a pop-up), then starts you again with US$100,000
+const resetBtn = document.querySelector("#reset-btn");
+const resetConfirm = document.querySelector("#reset-confirm");
+
+resetBtn.addEventListener("click", () => {
+  resetBtn.hidden = true;
+  resetConfirm.hidden = false;
+});
+
+resetConfirm.addEventListener("click", (event) => {
+  if (event.target.closest("#reset-cancel")) {
+    resetConfirm.hidden = true;
+    resetBtn.hidden = false;
+    return;
+  }
+  if (event.target.closest("#reset-yes")) {
+    resetAccount();
+    resetConfirm.hidden = true;
+    resetBtn.hidden = false;
+    loadPortfolio();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});

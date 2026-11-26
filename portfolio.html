@@ -150,6 +150,19 @@
         <button type="button" id="csv-holdings" class="range-btn">Holdings (CSV)</button>
         <button type="button" id="csv-trades" class="range-btn">Trade history (CSV)</button>
       </div>
+      
+      <!-- Reset practice account -->
+      <div class="reset-row">
+        <button type="button" id="reset-btn" class="range-btn reset-btn">Reset practice account</button>
+        <div id="reset-confirm" class="trade-confirm reset-confirm" hidden>
+          <p><strong>Start again with US$100,000?</strong><br>
+          This permanently deletes all your practice holdings and trade history on this device. It can't be undone.</p>
+          <div class="trade-confirm-btns">
+            <button type="button" id="reset-yes" class="btn-danger">Yes, reset</button>
+            <button type="button" id="reset-cancel" class="range-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
     </main>
 
   </body>
