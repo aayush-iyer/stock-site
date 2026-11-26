@@ -490,3 +490,77 @@ window.addEventListener("currencychange", () => {
 });
 
 currencyNoteEl.textContent = currencyNote();
+
+// ===== CSV downloads (open in Excel, Google Sheets or Numbers) =====
+// Amounts are plain numbers in US$ (the currency trades happen in), so spreadsheets can add them up.
+
+// Wrap a value in quotes if it contains a comma, quote or line break
+function csvCell(value) {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function csvDate() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function csvDateTime(iso) {
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function holdingsRows(account, prices) {
+  const rows = [["Ticker", "Shares", "Average cost (USD)", "Latest price (USD)", "Value (USD)", "Profit/loss (USD)", "Profit/loss (%)"]];
+  Object.keys(account.holdings).sort().forEach((symbol) => {
+    const h = account.holdings[symbol];
+    const avgCost = h.cost / h.shares;
+    const price = prices[symbol] ?? avgCost;
+    const value = roundMoney(h.shares * price);
+    const profit = roundMoney(value - h.cost);
+    rows.push([symbol, h.shares, avgCost.toFixed(2), price.toFixed(2), value.toFixed(2), profit.toFixed(2), (h.cost ? (profit / h.cost) * 100 : 0).toFixed(2)]);
+  });
+  rows.push([]);
+  rows.push(["Cash (USD)", "", "", "", account.cash.toFixed(2)]);
+  return rows;
+}
+
+function tradeRows(account) {
+  const rows = [["Date and time", "Trade", "Ticker", "Shares", "Price (USD)", "Total (USD)", "Profit/loss (USD)"]];
+  account.trades.forEach((t) => {
+    rows.push([
+      csvDateTime(t.time),
+      t.side === "buy" ? "Buy" : "Sell",
+      t.symbol,
+      t.shares,
+      t.price.toFixed(2),
+      t.total.toFixed(2),
+      t.side === "sell" && typeof t.profit === "number" ? t.profit.toFixed(2) : "",
+    ]);
+  });
+  return rows;
+}
+
+// Turn rows into a .csv file and save it (\uFEFF tells Excel the file is UTF-8)
+function downloadCSV(filename, rows) {
+  const csv = "\uFEFF" + rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.querySelector("#csv-holdings").addEventListener("click", () => {
+  const prices = (lastAllocation && lastAllocation.prices) || {};
+  downloadCSV(`trading-room-holdings-${csvDate()}.csv`, holdingsRows(getAccount(), prices));
+});
+
+document.querySelector("#csv-trades").addEventListener("click", () => {
+  downloadCSV(`trading-room-trades-${csvDate()}.csv`, tradeRows(getAccount()));
+});

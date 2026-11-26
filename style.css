@@ -1519,3 +1519,12 @@ body {
   font-size: 12px;
   color: var(--text-muted);
 }
+
+/* ===== CSV download buttons (Portfolio page) ===== */
+.csv-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: -16px 0 48px;
+}
